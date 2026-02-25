@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wine Persona｜処方箋UI Mock</title>
+  <style>
+    :root{
+      --bg: #fbfbfd;
+      --card-bg: #ffffff;
+      --bg-soft: #f4f5f7;
+      --border: #e6e8ee;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #7c3aed;
+      --shadow: 0 14px 44px rgba(17,24,39,.06);
+      --radius: 24px;
+
+      --font-sans: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Arial;
+      --font-serif: ui-serif, "Iowan Old Style", "Palatino", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 20% 10%, rgba(124,58,237,.06), transparent 60%),
+        radial-gradient(900px 520px at 80% 20%, rgba(6,182,212,.05), transparent 60%),
+        var(--bg);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:20px 16px 40px;
+    }
+    .app{ width:min(420px, 100%); }
+
+    /* Topbar (quiet) */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .topbar .brand{
+      flex:1;
+      text-align:center;
+      font-size:12px;
+      color: var(--muted);
+      letter-spacing:.02em;
+      padding:8px 10px;
+      border:1px solid rgba(230,232,238,.7);
+      border-radius:999px;
+      background: rgba(255,255,255,.55);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .iconbtn{
+      border:1px solid rgba(230,232,238,.8);
+      background: rgba(255,255,255,.7);
+      border-radius:14px;
+      padding:9px 12px;
+      box-shadow: 0 10px 26px rgba(17,24,39,.04);
+      cursor:pointer;
+      font-weight:800;
+      color:#111827;
+    }
+
+    /* Screen control */
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+
+    /* Card */
+    .card{
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .inner{ padding: 22px 20px; }
+
+    /* Quiz */
+    .progress{
+      height:8px;
+      border-radius:999px;
+      background: var(--bg-soft);
+      border:1px solid var(--border);
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(124,58,237,1), rgba(6,182,212,1));
+    }
+    .metaRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .count{
+      font-size:12px;
+      color: var(--muted);
+      font-weight:800;
+      letter-spacing:.02em;
+      white-space:nowrap;
+    }
+
+    .qTitle{
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin: 10px 0 6px;
+      line-height:1.25;
+    }
+    .qSub{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      margin:0 0 16px;
+      line-height:1.5;
+    }
+
+    .choices{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .choiceBtn{
+      width:100%;
+      text-align:left;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 14px;
+      cursor:pointer;
+      box-shadow: 0 10px 26px rgba(17,24,39,.04);
+    }
+    .choiceMain{
+      font-weight: 900;
+      letter-spacing:-.01em;
+      font-size: 15px;
+      margin:0;
+    }
+    .choiceSub{
+      margin-top:6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height:1.5;
+    }
+
+    /* Spice choice styling */
+    .choiceBtn.spice{
+      text-align:center;
+      border-style: dashed;
+      background: rgba(124,58,237,.03);
+    }
+    .choiceBtn.spice .choiceMain{
+      font-family: var(--font-serif);
+      font-size: 17px;
+      color: var(--accent);
+    }
+
+    .bottomRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:16px;
+    }
+    .link{
+      font-size:12px;
+      color: var(--muted);
+      font-weight: 800;
+      cursor:pointer;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(230,232,238,.8);
+      background: rgba(255,255,255,.6);
+      user-select:none;
+    }
+
+    /* Result (recipe / prescription) */
+    .result-card{
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 20px;
+      box-shadow: var(--shadow);
+    }
+    .r-header{
+      text-align:center;
+      margin-bottom: 18px;
+    }
+    .r-icon{
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+    .r-persona{
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 900;
+      margin:0 0 8px;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+    .r-catch{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      margin:0;
+      line-height:1.5;
+    }
+
+    /* Axes (thin, calm) */
+    .axes-box{ margin: 18px 0 18px; }
+    .axis-row{
+      display:grid;
+      grid-template-columns: 3fr 4fr 3fr;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .axis-label-left{ text-align:right; }
+    .axis-label-right{ text-align:left; }
+    .axis-track{
+      height: 4px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      position: relative;
+    }
+    .axis-thumb{
+      position:absolute;
+      top:50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background: #111827;
+      border-radius: 50%;
+      box-shadow: 0 8px 18px rgba(17,24,39,.10);
+    }
+
+    /* Tonight insight (B: mild “oh”) */
+    .insight{
+      background: var(--bg-soft);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .insightTitle{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      letter-spacing:.06em;
+      margin:0 0 10px;
+      text-transform: uppercase;
+    }
+    .insightText{
+      font-size: 14px;
+      line-height: 1.75;
+      font-weight: 800;
+      margin:0;
+      color: #111827;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      font-size: 11px;
+      font-weight: 900;
+      color: #111827;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(230,232,238,.9);
+      background: rgba(255,255,255,.65);
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* Wine recommend (core) */
+    .wine-recommend{
+      background: var(--bg-soft);
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid var(--border);
+    }
+    .wine-header{
+      display:flex;
+      align-items:center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .wine-icon{ font-size: 34px; }
+    .wine-name{
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 900;
+      margin:0 0 4px;
+      line-height:1.3;
+    }
+    .wine-tags{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--accent);
+      margin:0;
+    }
+    .wine-reason{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(230,232,238,.9);
+      font-size: 13px;
+      line-height: 1.9;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    /* CTA */
+    .cta{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top: 16px;
+    }
+    .btn-primary, .btn-secondary{
+      width:100%;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 900;
+      cursor:pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(17,24,39,.04);
+    }
+    .btn-primary{
+      border:none;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(124,58,237,1), rgba(6,182,212,1));
+      box-shadow: 0 14px 30px rgba(124,58,237,.16);
+    }
+
+    .footer{
+      margin-top: 14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(230,232,238,.8);
+      background: rgba(255,255,255,.55);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* tiny appear */
+    .fadeIn{ animation: fadeIn .18s ease-out both; }
+    @keyframes fadeIn{
+      from{ opacity:0; transform: translateY(6px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <button class="iconbtn" id="backBtn" aria-label="back">←</button>
+      <div class="brand">Wine Persona｜処方箋（Mock）</div>
+      <button class="iconbtn" id="shareBtn">共有</button>
+    </div>
+
+    <!-- QUIZ -->
+    <section class="screen active fadeIn" id="quizScreen" aria-label="quiz">
+      <div class="card">
+        <div class="inner">
+          <div class="metaRow">
+            <div class="count" id="qCount">1 / 6</div>
+            <div class="progress" aria-label="progress"><div class="bar" id="progressBar"></div></div>
+          </div>
+
+          <div class="qTitle" id="qTitle">今夜の過ごし方は？</div>
+          <div class="qSub" id="qSub">パッと直感で選んでOK。</div>
+
+          <div class="choices" id="choices"></div>
+
+          <div class="bottomRow">
+            <div class="link" id="skipBtn">スキップ</div>
+            <div class="link" id="finishBtn" style="display:none;">結果を見る</div>
+          </div>
+
+          <div class="footer">
+            <div class="tag">#今夜のワイン人格</div>
+            <div class="tag">Akinator × Recipe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen fadeIn" id="resultScreen" aria-label="result">
+      <div class="result-card">
+        <div class="r-header">
+          <div class="r-icon" id="rIcon">🌙</div>
+          <h1 class="r-persona" id="rPersona">夜更かしの探検家</h1>
+          <p class="r-catch" id="rCatch">ひとりの夜に、未知を一口。</p>
+        </div>
+
+        <div class="axes-box">
+          <div class="axis-row">
+            <div class="axis-label-left">社交</div>
+            <div class="axis-track"><div class="axis-thumb" id="axis-social"></div></div>
+            <div class="axis-label-right">内省</div>
+          </div>
+          <div class="axis-row">
+            <div class="axis-label-left">安定</div>
+            <div class="axis-track"><div class="axis-thumb" id="axis-adventure"></div></div>
+            <div class="axis-label-right">冒険</div>
+          </div>
+          <div class="axis-row">
+            <div class="axis-label-left">軽快</div>
+            <div class="axis-track"><div class="axis-thumb" id="axis-light"></div></div>
+            <div class="axis-label-right">濃厚</div>
+          </div>
+          <div class="axis-row">
+            <div class="axis-label-left">食中</div>
+            <div class="axis-track"><div class="axis-thumb" id="axis-food"></div></div>
+            <div class="axis-label-right">主役</div>
+          </div>
+        </div>
+
+        <!-- B: “おお”を作る（軽く刺さる） -->
+        <div class="insight">
+          <div class="insightTitle">Tonight Insight</div>
+          <p class="insightText" id="insightText">
+            静かに過ごしたい。でも、いつも通りじゃ物足りない。<br/>
+            だから「軽やか」だけど「余韻」が残る方向へ。
+          </p>
+          <div class="chips" id="chips"></div>
+        </div>
+
+        <!-- C: “次に飲む一本” -->
+        <div class="wine-recommend">
+          <div class="wine-header">
+            <div class="wine-icon">🍷</div>
+            <div>
+              <p class="wine-name" id="wName">ミステリー・ピノ 2022</p>
+              <p class="wine-tags" id="wTags">赤 / 軽やか / スモーキー</p>
+            </div>
+          </div>
+          <div class="wine-reason" id="wReason"></div>
+        </div>
+
+        <div class="cta">
+          <button class="btn-primary" id="btnKeep">この一本をキープする</button>
+          <button class="btn-secondary" id="btnAlt">別の一本</button>
+          <button class="btn-secondary" id="btnRetry">もう一度診断する</button>
+        </div>
+
+        <div class="footer">
+          <div class="tag" id="rareTag">RARE 12%</div>
+          <div class="tag">affiliate-ready</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ====== State (keep original structure) ======
+    const state = { social: 50, adventure: 50, light: 50, food: 50 };
+    const answers = []; // {chip, tags, qIndex}
+    let currentQ = 0;
+    let pickIndex = 0;
+    let emotionSpice = null; // 最後のひとさじ
+
+    const clamp = (x,a=0,b=100)=>Math.max(a,Math.min(b,x));
+    const dist2 = (a,b)=> (a.social-b.social)**2+(a.adventure-b.adventure)**2+(a.light-b.light)**2+(a.food-b.food)**2;
+
+    function applyDelta(delta){
+      for(const k of Object.keys(delta)) state[k]=clamp(state[k]+delta[k]);
+    }
+
+    function calcRarePercent(s){
+      const bias = Math.abs(s.social-50)+Math.abs(s.adventure-50)+Math.abs(s.light-50)+Math.abs(s.food-50);
+      return Math.round(clamp(50 - bias/4, 5, 50));
+    }
+
+    // ====== Questions (Akinator feel + spice last) ======
+    const questions = [
+      {
+        title: "今夜の過ごし方は？",
+        sub: "パッと直感で選んでOK。",
+        choices: [
+          { main:"ひとりで静かに", sub:"自分のペースで味わいたい", chip:"🕯 ひとりで静かに", tags:["ひとり","静寂"], delta:{ social:+18 } },
+          { main:"誰かと楽しく", sub:"会話をスパイスにしたい", chip:"👥 誰かと楽しく", tags:["誰かと","賑やか"], delta:{ social:-18 } }
+        ]
+      },
+      {
+        title: "今日はどんな気分？",
+        sub: "いつもの自分？それとも…",
+        choices: [
+          { main:"新しい味に出会いたい", sub:"小さな驚きが欲しい", chip:"🧪 新しいの試したい", tags:["未知","冒険"], delta:{ adventure:-18 } },
+          { main:"絶対に外したくない", sub:"安心できる心地よさ", chip:"🏠 外したくない", tags:["安心","王道"], delta:{ adventure:+18 } }
+        ]
+      },
+      {
+        title: "体が求めているのは？",
+        sub: "グラスに注がれる重さをイメージして。",
+        choices: [
+          { main:"ふわっと軽やか", sub:"さらりと喉を潤したい", chip:"🫧 軽やか", tags:["軽やか","リフレッシュ"], delta:{ light:-18 } },
+          { main:"どっしり満足", sub:"深い余韻に浸りたい", chip:"🪵 どっしり", tags:["重厚","深い余韻"], delta:{ light:+18 } }
+        ]
+      },
+      {
+        title: "食事は？",
+        sub: "今夜の主役はどっち？",
+        choices: [
+          { main:"料理が主役", sub:"ワインは伴走者", chip:"🍽 食中", tags:["食中","合わせたい"], delta:{ food:-18 } },
+          { main:"ワインが主役", sub:"今日のセンターはこれ", chip:"⭐ 主役", tags:["主役","ご褒美"], delta:{ food:+18 } }
+        ]
+      },
+      {
+        title: "気分の温度は？",
+        sub: "なんとなくでOK。",
+        choices: [
+          { main:"明るい", sub:"軽快に寄せたい", chip:"🥂 明るい", tags:["明るい","軽快"], delta:{ light:-10, social:-10 } },
+          { main:"静か", sub:"内省に寄せたい", chip:"🕯 静か", tags:["静か","内省"], delta:{ light:+10, social:+10 } }
+        ]
+      },
+      // spice (special)
+      {
+        title: "最後に、隠し味を。",
+        sub: "今の気分に、ひとさじ加えるなら？",
+        isSpice:true,
+        choices: [
+          { main:"切なさ", flavor:"スモーキーな樽香", desc:"少しのほろ苦さが、深みを与えます" },
+          { main:"たっぷりの愛情", flavor:"華やかな果実味", desc:"明るく甘やかな余韻が広がります" },
+          { main:"澄んだ静寂", flavor:"キリッとしたミネラル感", desc:"透明感のある余韻で整います" }
+        ]
+      }
+    ];
+
+    // ====== Personas ======
+    const personas = [
+      { name:"夜更かしの探検家", icon:"🌙", catch:"ひとりの夜に、未知を一口。", vec:{ social:78, adventure:22, light:35, food:68 } },
+      { name:"王道の主役", icon:"👑", catch:"外さない、でもちゃんと美味い。", vec:{ social:30, adventure:75, light:70, food:80 } },
+      { name:"軽快なムードメーカー", icon:"🥂", catch:"シュワっと、明るく。", vec:{ social:25, adventure:55, light:20, food:55 } }
+    ];
+
+    // ====== Picks (REAL from /api/wines) ======
+    let picks = [];  // 後で埋める
+    let picksLoaded = false;
+
+    function styleToJP(style){
+        if(style==="red") return "赤";
+        if(style==="white") return "白";
+        if(style==="sparkling") return "スパークリング";
+        if(style==="rose") return "ロゼ";
+        return "ワイン";
+    }
+
+    function fmtYen(n){
+        if(typeof n !== "number") return "";
+        return `${n.toLocaleString("ja-JP")}円`;
+    }
+
+    async function loadPicks(){
+        try{
+        const res = await fetch("/api/wines?limit=60");
+        const json = await res.json();
+        const items = json.items || [];
+
+        // HTML側の picks 形式に寄せる
+        picks = items.map(w => ({
+            id: w.id,
+            name: w.name, // API側ですでにcleanされていればそのまま
+            tags: `${styleToJP(w.style)}${w.price_yen ? " / " + fmtYen(w.price_yen) : ""}${(w.tags && w.tags.length) ? " / " + w.tags.slice(0,2).join(" / ") : ""}`,
+            url: w.url,
+            review_average: w.review_average,
+            review_count: w.review_count,
+            // vibeは後で学習させるので仮（今は見た目だけでOK）
+            vibe: { social:50, adventure:50, light:50, food:50 }
+        }));
+
+        picksLoaded = true;
+
+        }catch(e){
+        console.warn("failed to load picks", e);
+        picksLoaded = false;
+        }
+    }
+
+    function pickPersona(){
+      let best = personas[0], bestD = Infinity;
+      for(const p of personas){
+        const d = dist2(state, p.vec);
+        if(d<bestD){ bestD=d; best=p; }
+      }
+      return best;
+    }
+
+    // ====== B Insight ======
+    function summarizeInsight(){
+      const tags = [...new Set(answers.flatMap(a=>a.tags||[]))];
+      const hasQuiet = tags.includes("静寂") || tags.includes("静か") || state.social>=60;
+      const hasUnknown = tags.includes("未知") || tags.includes("冒険") || state.adventure<=40;
+      const hasSafe = tags.includes("安心") || tags.includes("王道") || state.adventure>=60;
+      const wantsLight = state.light<=40;
+      const wantsRich = state.light>=60;
+
+      const line1 = hasQuiet ? "静かに過ごしたい夜。" : "誰かと過ごしたい夜。";
+      let line2 = "極端じゃなくていい。今日は“ほどよく気分が上がる”が合う。";
+      if(hasUnknown && hasSafe) line2 = "安心も欲しいのに、少しだけ未知も欲しい。わがままがちょうどいい。";
+      else if(hasUnknown) line2 = "いつも通りじゃ物足りない。小さな冒険を入れたい。";
+      else if(hasSafe) line2 = "外したくない。今日は“安心で気分を上げる”が正解。";
+
+      return `${line1} でも、${line2}<br/>だから「${wantsLight?"軽やか":wantsRich?"どっしり":"バランス"}」寄りで。`;
+    }
+
+    // ====== ✅ Short & Strong Reason (final tweak) ======
+    function buildReason(pick){
+      const tags = answers.flatMap(a=>a.tags||[]);
+      const uniq = [...new Set(tags)];
+
+      const t1 = uniq[uniq.length-2] || uniq[0] || "今夜";
+      const t2 = uniq[uniq.length-1] || uniq[1] || "気分";
+
+      const spice = emotionSpice?.main || "澄んだ静寂";
+      const flavor = emotionSpice?.flavor || "キリッとしたミネラル感";
+
+      return `
+        <b>結論：</b>「${t1}」×「${t2}」に、<b>「${spice}」を一匙</b>。<br/>
+        <b>だから：</b>${flavor}が立つ方向へ。<br/>
+        <b>次の夜：</b>迷わずこれを迎えてほしい。
+      `;
+    }
+
+    function setAxisThumb(id, value){
+      document.getElementById(id).style.left = clamp(value) + "%";
+    }
+
+    function renderChips(){
+      const chipsEl = document.getElementById("chips");
+      chipsEl.innerHTML = "";
+      const seen = new Set();
+      for(let i=answers.length-1; i>=0 && seen.size<3; i--){
+        const c = answers[i]?.chip;
+        if(!c || c.includes("スキップ")) continue;
+        if(seen.has(c)) continue;
+        seen.add(c);
+      }
+      [...seen].reverse().forEach(c=>{
+        const span = document.createElement("span");
+        span.className = "chip";
+        span.textContent = c;
+        chipsEl.appendChild(span);
+      });
+    }
+
+    function renderResult(){
+      const persona = pickPersona();
+      document.getElementById("rIcon").textContent = persona.icon;
+      document.getElementById("rPersona").textContent = persona.name;
+      document.getElementById("rCatch").textContent = persona.catch;
+
+      setAxisThumb("axis-social", state.social);
+      setAxisThumb("axis-adventure", 100 - state.adventure); // left=安定, right=冒険
+      setAxisThumb("axis-light", state.light);
+      setAxisThumb("axis-food", state.food);
+
+      document.getElementById("insightText").innerHTML = summarizeInsight();
+      renderChips();
+
+      if(!picksLoaded || !picks.length){
+        document.getElementById("wName").textContent = "（読み込み中…）";
+        document.getElementById("wTags").textContent = "少し待ってね";
+        document.getElementById("wReason").innerHTML = "ワイン候補を取得しています。";
+        return;
+        }
+      const pick = picks[pickIndex % picks.length];
+      document.getElementById("wName").textContent = pick.name;
+      document.getElementById("wTags").textContent = pick.tags;
+      document.getElementById("wReason").innerHTML = buildReason(pick);
+
+      document.getElementById("rareTag").textContent = `RARE ${calcRarePercent(state)}%`;
+    }
+
+    // ====== Screens ======
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+
+    function show(screen){
+      [quizScreen, resultScreen].forEach(s=>s.classList.remove("active"));
+      screen.classList.add("active");
+      screen.classList.remove("fadeIn"); void screen.offsetWidth; screen.classList.add("fadeIn");
+    }
+
+    // ====== Render question ======
+    function renderQuestion(){
+      const q = questions[currentQ];
+      document.getElementById("qTitle").textContent = q.title;
+      document.getElementById("qSub").textContent = q.sub;
+
+      document.getElementById("qCount").textContent = `${currentQ+1} / ${questions.length}`;
+      document.getElementById("progressBar").style.width = `${Math.round((currentQ)/(questions.length)*100)}%`;
+
+      const choicesEl = document.getElementById("choices");
+      choicesEl.innerHTML = "";
+
+      q.choices.forEach((c)=>{
+        const btn = document.createElement("button");
+        btn.className = "choiceBtn" + (q.isSpice ? " spice" : "");
+        btn.innerHTML = `
+          <div class="choiceMain">${c.main}</div>
+          <div class="choiceSub">${q.isSpice ? (c.desc || "") : (c.sub || "")}</div>
+        `;
+        btn.addEventListener("click", ()=>{
+          if(q.isSpice){
+            emotionSpice = c; // {main, flavor, desc}
+          }else{
+            applyDelta(c.delta || {});
+            answers.push({ qIndex: currentQ, chip: c.chip, tags: c.tags });
+          }
+          next();
+        });
+        choicesEl.appendChild(btn);
+      });
+
+      document.getElementById("finishBtn").style.display = (currentQ === questions.length-1) ? "inline-flex" : "none";
+    }
+
+    function next(){
+      if(currentQ < questions.length-1){
+        currentQ++;
+        renderQuestion();
+      }else{
+        if(!emotionSpice){
+          emotionSpice = questions.find(x=>x.isSpice)?.choices?.[2] || { main:"澄んだ静寂", flavor:"キリッとしたミネラル感" };
+        }
+        renderResult();
+        show(resultScreen);
+      }
+    }
+
+    function skip(){
+      answers.push({ qIndex: currentQ, chip:"⏭ スキップ", tags:["ほどよく"] });
+      state.social = Math.round((state.social + 50)/2);
+      state.adventure = Math.round((state.adventure + 50)/2);
+      state.light = Math.round((state.light + 50)/2);
+      state.food = Math.round((state.food + 50)/2);
+      next();
+    }
+
+    function reset(){
+      state.social=50; state.adventure=50; state.light=50; state.food=50;
+      answers.length=0;
+      currentQ=0;
+      pickIndex=0;
+      emotionSpice=null;
+      renderQuestion();
+      show(quizScreen);
+    }
+
+    // ====== Events ======
+    document.getElementById("skipBtn").addEventListener("click", skip);
+    document.getElementById("finishBtn").addEventListener("click", next);
+
+    // Back: mock safety -> resultなら最初から
+    document.getElementById("backBtn").addEventListener("click", ()=>{
+      if(resultScreen.classList.contains("active")) reset();
+      else if(currentQ>0){ currentQ--; renderQuestion(); }
+    });
+
+    document.getElementById("btnAlt").addEventListener("click", ()=>{
+      pickIndex++;
+      renderResult();
+    });
+
+    document.getElementById("btnKeep").addEventListener("click", ()=>{
+    const pick = picks[pickIndex % picks.length];
+    if(pick?.url) window.open(pick.url, "_blank");
+    else alert("リンクが見つかりませんでした");
+    });
+
+    document.getElementById("btnRetry").addEventListener("click", reset);
+
+    document.getElementById("shareBtn").addEventListener("click", async ()=>{
+      const persona = document.getElementById("rPersona").textContent.trim();
+      const wine = document.getElementById("wName").textContent.trim();
+      const spice = emotionSpice?.main || "澄んだ静寂";
+      const text = `Wine Persona｜処方箋\n【結果】${persona}\n【隠し味】${spice}\n【次の一本】${wine}\n#今夜のワイン人格`;
+      try{
+        if(navigator.share) await navigator.share({ text });
+        else { await navigator.clipboard.writeText(text); alert("共有テキストをコピーしました"); }
+      }catch(e){}
+    });
+
+    // init
+    (async ()=>{
+    await loadPicks();
+    renderQuestion();
+    })();
+  </script>
+</body>
+</html>
